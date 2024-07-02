@@ -13,7 +13,7 @@ const pool = new Pool({
 
 // create tables
 const createGrpTblQry = `
-    CREATE TABLE Groups (
+    CREATE TABLE Sets (
         id SERIAL PRIMARY KEY
     );
 `;
@@ -23,8 +23,8 @@ const createFlashCardTblQry = `
         id SERIAL PRIMARY KEY,
         front VARCHAR(50) NOT NULL,
         back VARCHAR(50) NOT NULL,
-        groupId INT,
-        FOREIGN KEY (groupId) REFERENCES Groups(id)
+        setId INT,
+        FOREIGN KEY (setId) REFERENCES Sets(id)
     );`;
 
 /*
