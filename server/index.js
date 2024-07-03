@@ -111,7 +111,7 @@ app.post("/createSet/", async (req, res) => {
         //this line makes sure that all promises are fulfilled in that variable
         await Promise.all(addFlashCardPromises);
 
-        res.status(200).json({ status: "Success", error: null });
+        res.status(200).json({ status: "Success", error: null, data: set_id});
     } catch (error) {
         console.error("Error:", error);
         res.status(404).json({
