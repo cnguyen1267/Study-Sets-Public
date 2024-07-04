@@ -3,98 +3,176 @@ import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
 export default function CreateSet() {
-    const [setName, setSetName] = useState("");
-    const [flashcards, setFlashcards] = useState([{ front: "", back: "" }]);
+    const [setTitle, setSetTitle] = useState("");
+    const [description, setDescription] = useState("");
+    const [schoolName, setSchoolName] = useState("");
+    const [course, setCourse] = useState("");
+    const [flashcards, setFlashcards] = useState([
+        { front: "", back: "" },
+        { front: "", back: "" },
+    ]);
     const navigate = useNavigate();
+
+    const [error, setError] = useState("");
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        setError(""); // Clear any previous errors
+
+        // Check if title is empty
+        if (!setTitle.trim()) {
+            setError("Please enter a title for the flashcard set.");
+            return;
+        }
+
+        // Filter out completely empty flashcards
+        const nonEmptyFlashcards = flashcards.filter(
+            (card) => card.front.trim() !== "" || card.back.trim() !== ""
+        );
+
+        // Check if there are any non-empty flashcards
+        if (nonEmptyFlashcards.length === 0) {
+            setError("Please add at least one flashcard with a front or back.");
+            return;
+        }
+
+        // Check for partially filled flashcards
+        const incompleteFlashcards = nonEmptyFlashcards.filter(
+            (card) => card.front.trim() === "" || card.back.trim() === ""
+        );
+
+        if (incompleteFlashcards.length > 0) {
+            setError(
+                "Please complete all flashcards. Each card should have both a front and a back."
+            );
+            return;
+        }
+
+        // If all checks pass, proceed with submission
         axios
             .post("http://localhost:4000/createSet", {
-                set_name: setName,
-                flashcards: flashcards,
+                set_name: setTitle,
+                description,
+                school_name: schoolName,
+                course,
+                flashcards: nonEmptyFlashcards,
             })
-            .then((res) => {
-                console.log(res)
-                navigate(`/set/${res.data.data}`);
-            })
-            .catch((error) => console.error("Error creating set:", error));
+            .then((res) => navigate(`/set/${res.data.data}`))
+            .catch((error) => {
+                console.error("Error creating set:", error);
+                console.log(flashcards);
+                setError(
+                    "An error occurred while creating the set. Please try again."
+                );
+            });
     };
 
     const addFlashcard = () => {
         setFlashcards([...flashcards, { front: "", back: "" }]);
     };
 
+    const updateFlashcard = (index, field, value) => {
+        const updatedFlashcards = [...flashcards];
+        updatedFlashcards[index][field] = value;
+        setFlashcards(updatedFlashcards);
+    };
+
     return (
-        <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
-            <div className="max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
-                <div className="px-4 py-5 sm:p-6">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                        Create New Flashcard Set
-                    </h2>
-                    <form onSubmit={handleSubmit} className="space-y-6">
-                        <div>
-                            <label
-                                htmlFor="setName"
-                                className="block text-sm font-medium text-gray-700"
-                            >
-                                Set Name
-                            </label>
+        <div className="max-w-4xl mx-auto p-6">
+            <h1 className="text-3xl font-bold mb-6">
+                Create a new flashcard set
+            </h1>
+            {error && (
+                <div
+                    className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
+                    role="alert"
+                >
+                    {error}
+                </div>
+            )}
+            <form onSubmit={handleSubmit} className="space-y-6">
+                <input
+                    type="text"
+                    value={setTitle}
+                    onChange={(e) => setSetTitle(e.target.value)}
+                    placeholder="Enter a title, like Biology - Chapter 22: Evolution"
+                    className="w-full p-2 border border-gray-300 rounded"
+                />
+                <textarea
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    placeholder="Add a description..."
+                    className="w-full p-2 border border-gray-300 rounded h-24"
+                />
+                <div className="flex space-x-4">
+                    <input
+                        type="text"
+                        value={schoolName}
+                        onChange={(e) => setSchoolName(e.target.value)}
+                        placeholder="School name"
+                        className="w-1/2 p-2 border border-gray-300 rounded"
+                    />
+                    <input
+                        type="text"
+                        value={course}
+                        onChange={(e) => setCourse(e.target.value)}
+                        placeholder="Course"
+                        className="w-1/2 p-2 border border-gray-300 rounded"
+                    />
+                </div>
+                {flashcards.map((card, index) => (
+                    <div key={index} className="flex space-x-4 items-start">
+                        <div className="font-bold text-gray-500 mt-2">
+                            {index + 1}
+                        </div>
+                        <div className="flex-grow space-y-2">
                             <input
                                 type="text"
-                                id="setName"
-                                value={setName}
-                                onChange={(e) => setSetName(e.target.value)}
-                                placeholder="Enter Set Name"
-                                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                                value={card.front}
+                                onChange={(e) =>
+                                    updateFlashcard(
+                                        index,
+                                        "front",
+                                        e.target.value
+                                    )
+                                }
+                                placeholder="Enter term"
+                                className="w-full p-2 border border-gray-300 rounded"
+                            />
+                            <input
+                                type="text"
+                                value={card.back}
+                                onChange={(e) =>
+                                    updateFlashcard(
+                                        index,
+                                        "back",
+                                        e.target.value
+                                    )
+                                }
+                                placeholder="Enter definition"
+                                className="w-full p-2 border border-gray-300 rounded"
                             />
                         </div>
-                        {flashcards.map((card, index) => (
-                            <div key={index} className="space-y-2">
-                                <input
-                                    type="text"
-                                    value={card.front}
-                                    onChange={(e) => {
-                                        const newFlashcards = [...flashcards];
-                                        newFlashcards[index].front =
-                                            e.target.value;
-                                        setFlashcards(newFlashcards);
-                                    }}
-                                    placeholder="Front of card"
-                                    className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                />
-                                <input
-                                    type="text"
-                                    value={card.back}
-                                    onChange={(e) => {
-                                        const newFlashcards = [...flashcards];
-                                        newFlashcards[index].back =
-                                            e.target.value;
-                                        setFlashcards(newFlashcards);
-                                    }}
-                                    placeholder="Back of card"
-                                    className="block w-full border border-gray-300 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
-                                />
-                            </div>
-                        ))}
-                        <div className="flex justify-between">
-                            <button
-                                type="button"
-                                onClick={addFlashcard}
-                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                            >
-                                Add Flashcard
-                            </button>
-                            <button
-                                type="submit"
-                                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500"
-                            >
-                                Create Set
-                            </button>
-                        </div>
-                    </form>
+                    </div>
+                ))}
+                <button
+                    type="button"
+                    onClick={addFlashcard}
+                    className="w-full p-2 border border-dashed border-gray-300 rounded text-gray-500 hover:bg-gray-50"
+                >
+                    + Add card
+                </button>
+                <div className="flex justify-end">
+                    <div className="space-x-2">
+                        <button
+                            type="submit"
+                            className="px-4 py-2 bg-white text-blue-600 border border-blue-600 rounded"
+                        >
+                            Create
+                        </button>
+                    </div>
                 </div>
-            </div>
+            </form>
         </div>
     );
 }

@@ -1,19 +1,27 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import ViewSet from "./components/ViewSet";
-import Home from "./components/Home";
-import CreateSet from "./components/CreateSet";
+import Navbar from "./components/Navbar.jsx";
+import Home from "./components/Home.jsx";
+import CreateSet from "./components/CreateSet.jsx";
+import ViewSet from "./components/ViewSet.jsx";
+import AllSets from './components/AllSets';
 
-function App() {
+
+export default function App() {
     return (
         <Router>
-            <Routes>
-                <Route path="/" element={<Home/>}/>
-                <Route path="/set/:id" element={<ViewSet />} />
-                <Route path="/create" element={<CreateSet />} />
-            </Routes>
+            <div className="flex flex-col min-h-screen">
+                <Navbar />
+                <main className="flex-grow">
+                    <Routes>
+                        <Route path="/" element={<Home />} />
+                        <Route path="/create" element={<CreateSet />} />
+                        <Route path="/set/:id" element={<ViewSet />} />
+                        <Route path="/sets" element={<AllSets />} />
+                        {/* Add other routes as needed */}
+                    </Routes>
+                </main>
+            </div>
         </Router>
     );
 }
-
-export default App;

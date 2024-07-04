@@ -1,61 +1,63 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 export default function Home() {
     const [setId, setSetID] = useState("");
+    const navigate = useNavigate();
 
     const handleInputChange = (event) => {
         setSetID(event.target.value);
     };
 
+    const handleSubmit = (event) => {
+        event.preventDefault();
+        if (setId.trim()) {
+            navigate(`/set/${setId}`);
+        }
+    };
+
     return (
-        <section className="flex items-center justify-center min-h-screen bg-gradient-to-r from-blue-500 to-purple-600">
-            <div className="bg-white p-8 rounded-lg shadow-lg">
-                <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">
-                    Flashcard App
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 px-4">
+            <div className="max-w-md w-full space-y-8 text-center">
+                <h1 className="text-4xl font-bold text-gray-900">
+                    Flashcard Study Sets
                 </h1>
-                <div className="flex flex-col items-center space-y-4">
-                    <div className="flex items-center space-x-2">
+                
+                <p className="mt-2 text-gray-600">
+                    Create your own flashcards, or search other study sets.
+                </p>
+
+                <form onSubmit={handleSubmit} className="mt-8 space-y-6">
+                    <div className="rounded-md shadow-sm -space-y-px">
                         <input
                             type="text"
-                            className="bg-gray-100 border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-300 ease-in-out"
+                            required
+                            className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10 sm:text-sm"
                             placeholder="Enter Set ID"
                             value={setId}
                             onChange={handleInputChange}
                         />
-                        <Link
-                            to={setId ? `/set/${setId}` : "#"}
-                            className={`p-2 rounded-full transition-all duration-300 ease-in-out ${
-                                setId
-                                    ? "bg-blue-500 text-white hover:bg-blue-600"
-                                    : "bg-gray-300 text-gray-500 cursor-default"
-                            }`}
-                            onClick={(e) => !setId && e.preventDefault()}
-                        >
-                            <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                fill="none"
-                                viewBox="0 0 24 24"
-                                strokeWidth="1.5"
-                                stroke="currentColor"
-                                className="w-6 h-6"
-                            >
-                                <path
-                                    strokeLinecap="round"
-                                    strokeLinejoin="round"
-                                    d="m12.75 15 3-3m0 0-3-3m3 3h-7.5M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                                />
-                            </svg>
-                        </Link>
                     </div>
-                    <Link
-                        to="/create"
-                        className="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition duration-300"
+
+                    <div>
+                        <button
+                            type="submit"
+                            className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-sky-400 hover:bg-sky-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                        >
+                            Go to Set
+                        </button>
+                    </div>
+                </form>
+
+                <div className="mt-6">
+                    <a
+                        href="/create"
+                        className="font-medium text-neutral-600 hover:text-neutral-500"
                     >
-                        Create New Set
-                    </Link>
+                        Or create a new set
+                    </a>
                 </div>
             </div>
-        </section>
+        </div>
     );
 }
