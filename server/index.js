@@ -2,11 +2,13 @@ const express = require("express");
 const cors = require("cors");
 // const pg = require("pg");
 
+require('dotenv').config({ path: '.env.local' });
+
 const { Pool } = require("pg");
 
 const pool = new Pool({
     user: "postgres",
-    password: "laptops21",
+    password: process.env.PASSWORD,
     host: "localhost",
     port: 5432,
     database: "flashcards",
